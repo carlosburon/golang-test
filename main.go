@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,13 +10,13 @@ import (
 )
 
 type Product struct {
-	Code  string
-	Name  string
-	Price float32
+	Code  string  `json:"Code"`
+	Name  string  `json:"Name"`
+	Price float32 `json:"Price"`
 }
 
 type Basket struct {
-	Code             uint
+	Id               uint `json:"Id"`
 	ProductsInBasket []Product
 }
 
@@ -32,13 +33,18 @@ func about(w http.ResponseWriter, r *http.Request) {
 
 func newBasket(w http.ResponseWriter, r *http.Request) {
 	var basketIndex uint = 0
+	var newProducts []Product
+	var newBasket Basket
 
 	if len(Baskets) > 0 {
-		basketIndex := Baskets[len(Baskets)-1].Code
-		basketIndex++
+		basketIndex = Baskets[len(Baskets)-1].Id
+		basketIndex = basketIndex + 1
 	}
 
-	Baskets = append(Baskets, Basket{basketIndex, nil})
+	newBasket = Basket{basketIndex, newProducts}
+	Baskets = append(Baskets, newBasket)
+
+	json.NewEncoder(w).Encode(newBasket)
 
 }
 
