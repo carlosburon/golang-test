@@ -17,18 +17,17 @@ type Product struct {
 type Basket struct {
 	Code             uint
 	ProductsInBasket []Product
-	TotalPrice       float32
 }
 
 var Products []Product
 var Baskets []Basket
 
 func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>Lana Merchandising</h1>")
+	fmt.Fprintf(w, "<h1>Lana Merchandising (Homepage Endpoint)</h1>")
 }
 
 func about(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>About</h1>")
+	fmt.Fprintf(w, "<h1>SRE-Challenge: attempt by Carlos Buron</h1>")
 }
 
 func newBasket(w http.ResponseWriter, r *http.Request) {
@@ -39,25 +38,30 @@ func newBasket(w http.ResponseWriter, r *http.Request) {
 		basketIndex++
 	}
 
-	Baskets = append(Baskets, Basket{basketIndex, nil, 0.0})
+	Baskets = append(Baskets, Basket{basketIndex, nil})
+
 }
 
 func addProductToBasket(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>About</h1>")
+
 }
 
 func getTotalAmountInBasket(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>About</h1>")
+
 }
 
 func deleteBasket(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>About</h1>")
+
 }
 
 func handleRequests() {
 	gorillaRouter := mux.NewRouter().StrictSlash(true)
 	gorillaRouter.HandleFunc("/", index)
 	gorillaRouter.HandleFunc("/about", about)
+	gorillaRouter.HandleFunc("/basket", newBasket).Methods("POST")
+	gorillaRouter.HandleFunc("/basket/{id}", addProductToBasket).Methods("POST")
+	gorillaRouter.HandleFunc("/basket/{id}", getTotalAmountInBasket)
+	gorillaRouter.HandleFunc("/basket/{id}", deleteBasket).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":3000", gorillaRouter))
 }
 
