@@ -24,22 +24,31 @@ type Basket struct {
 	ProductsInBasket []Product
 }
 
+type Total struct {
+	Items []string
+	Total float32
+}
+
 //Global variables
 
 var Products []Product
 var Baskets []Basket
 
-//Main handlers
+/////
+//Default handlers
+/////
 
 func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>Lana Merchandising (Homepage Endpoint)</h1>")
 }
 
 func about(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>SRE-Challenge: attempt by Carlos Buron</h1>")
+	fmt.Fprintf(w, "<h1>SRE-Challenge Lana attempt: Carlos Buron</h1>")
 }
 
+/////
 //Rest API handlers
+/////
 
 //Creates a new basket with no products and a unique identifier
 func newBasket(w http.ResponseWriter, r *http.Request) {
@@ -86,6 +95,24 @@ func addProductToBasket(w http.ResponseWriter, r *http.Request) {
 
 //Calculates basket total by adding products and applying discounts
 func getTotalAmountInBasket(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	i, err := strconv.Atoi(key)
+
+	if err == nil {
+		resultBasketId := searchBasket(i)
+
+		if resultBasketId != len(Baskets) {
+
+			Baskets[resultBasketId].ProductsInBasket = append(Baskets[resultBasketId].ProductsInBasket, newProduct)
+			json.NewEncoder(w).Encode(Baskets[resultBasketId])
+
+		} else {
+			//TODO: handle basket id not found error
+		}
+	} else {
+		//TODO: handle malformed basket id error
+	}
 
 }
 
@@ -107,7 +134,9 @@ func handleRequests() {
 	log.Fatal(http.ListenAndServe(":3000", gorillaRouter))
 }
 
+//////
 //Basket auxiliary functions
+//////
 
 //Searchs a basket by id in the global array
 func searchBasket(id int) int {
@@ -119,7 +148,22 @@ func searchBasket(id int) int {
 	return len(Baskets)
 }
 
+//Applies discounts
+func calculateTotal(id int) Total {
+
+	var total Total
+
+	for _, n := range Baskets[id].ProductsInBasket {
+		total.Items = append(total.Items, n.Name)
+		total.Items = append(total.Items, n.Name)
+	}
+
+	return total
+}
+
+////
 //Main
+////
 
 func main() {
 
