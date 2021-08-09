@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,7 +18,7 @@ import (
 type Product struct {
 	gorm.Model
 
-	Code  string
+	Code  string `gorm:"unique"`
 	Name  string
 	Price float32
 }
@@ -66,7 +67,10 @@ func about(w http.ResponseWriter, r *http.Request) {
 //Products
 
 func getAllProducts(w http.ResponseWriter, r *http.Request) {
+	var allProducts []Product
+	db.Find(&allProducts)
 
+	json.NewEncoder(w).Encode(&allProducts)
 }
 
 func getProduct(w http.ResponseWriter, r *http.Request) { //Product {
@@ -159,7 +163,7 @@ func handleRequests() {
 	gorRouter.HandleFunc("/", index)
 	gorRouter.HandleFunc("/about", about)
 
-	gorRouter.HandleFunc("/Products", about).Methods("GET")
+	gorRouter.HandleFunc("/Products", getAllProducts).Methods("GET")
 	gorRouter.HandleFunc("/Products/{id}", about).Methods("GET")
 
 	gorRouter.HandleFunc("/Baskets", newBasket).Methods("POST")
