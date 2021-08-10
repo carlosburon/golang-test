@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -21,6 +22,11 @@ type Product struct {
 	Code  string `gorm:"unique"`
 	Name  string
 	Price float32
+}
+
+type ProductRequest struct {
+	Code     string
+	Quantity string
 }
 
 type Basket struct {
@@ -96,9 +102,31 @@ func newBasket(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//Returns all baskets in the database
+func getAllBaskets(w http.ResponseWriter, r *http.Request) {
+	var allBaskets []Basket
+	db.Find(&allBaskets)
+
+	json.NewEncoder(w).Encode(&allBaskets)
+}
+
 //Finds a basket by id and adds a product to it
 func addProductToBasket(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	var basket Basket
+	var product Product
 
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var productRequest ProductRequest
+	json.Unmarshal(reqBody, &productRequest)
+
+	db.First(&basket, key)
+	fmt.Println(productRequest)
+	db.Where("Code = ?", productRequest.Code).First(&product)
+
+	json.NewEncoder(w).Encode(&product)
+	json.NewEncoder(w).Encode(&basket)
 }
 
 //Calculates basket total by adding products and applying discounts
@@ -153,6 +181,7 @@ func handleRequests() {
 	gorRouter.HandleFunc("/Products/{id}", getProduct).Methods("GET")
 
 	gorRouter.HandleFunc("/Baskets", newBasket).Methods("POST")
+	gorRouter.HandleFunc("/Baskets", getAllBaskets).Methods("GET")
 	gorRouter.HandleFunc("/Baskets/{id}/items", addProductToBasket).Methods("POST")
 	gorRouter.HandleFunc("/Baskets/{id}", getTotalAmountInBasket).Methods("GET")
 	gorRouter.HandleFunc("/Baskets/{id}", deleteBasket).Methods("DELETE")
