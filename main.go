@@ -86,13 +86,14 @@ func getProduct(w http.ResponseWriter, r *http.Request) { //Product {
 
 //Creates a new basket with no products and a unique identifier
 func newBasket(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	key := vars["id"]
-	var product Product
+	var newProducts []Product
 
-	db.First(&product, key)
+	newBasket := Basket{gorm.Model{}, newProducts}
 
-	json.NewEncoder(w).Encode(&product)
+	db.Create(&newBasket)
+
+	json.NewEncoder(w).Encode(newBasket)
+
 }
 
 //Finds a basket by id and adds a product to it
