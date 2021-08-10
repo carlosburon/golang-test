@@ -38,7 +38,7 @@ type Basket struct {
 }
 
 type Total struct {
-	Items []string
+	Items string
 	Total float32
 }
 
@@ -158,7 +158,34 @@ func addProductToBasket(w http.ResponseWriter, r *http.Request) {
 
 //Calculates basket total by adding products and applying discounts
 func getTotalAmountInBasket(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	var basket Basket
+	var expandedBasket []string
+	var total Total
 
+	//Finds the product in the database by code
+	//db.Where("Code = ?", productRequest.Code).First(&product)
+
+	//Finds the basket
+	db.First(&basket, key)
+
+	if basket.ProductsInBasket != "" {
+		expandedBasket = strings.Split(basket.ProductsInBasket, ",")
+
+		for index := range expandedBasket {
+			var product Product
+			db.Where("Code = ?", expandedBasket[index]).First(&product)
+			total.Total += product.Price
+		}
+		total.Items = basket.ProductsInBasket
+	} else {
+		total.Items = "Basket empty"
+		total.Total = 0
+	}
+
+	json.NewEncoder(w).Encode(&basket)
+	json.NewEncoder(w).Encode(total)
 }
 
 //Finds a basket by id and deletes it
