@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -32,7 +34,7 @@ type ProductRequest struct {
 type Basket struct {
 	gorm.Model
 
-	ProductsInBasket []Product
+	ProductsInBasket string
 }
 
 type Total struct {
@@ -74,6 +76,7 @@ func about(w http.ResponseWriter, r *http.Request) {
 
 func getAllProducts(w http.ResponseWriter, r *http.Request) {
 	var allProducts []Product
+
 	db.Find(&allProducts)
 
 	json.NewEncoder(w).Encode(&allProducts)
@@ -92,10 +95,8 @@ func getProduct(w http.ResponseWriter, r *http.Request) { //Product {
 
 //Creates a new basket with no products and a unique identifier
 func newBasket(w http.ResponseWriter, r *http.Request) {
-	var newProducts []Product
 
-	newBasket := Basket{gorm.Model{}, newProducts}
-
+	newBasket := Basket{gorm.Model{}, ""}
 	db.Create(&newBasket)
 
 	json.NewEncoder(w).Encode(newBasket)
@@ -105,6 +106,7 @@ func newBasket(w http.ResponseWriter, r *http.Request) {
 //Returns all baskets in the database
 func getAllBaskets(w http.ResponseWriter, r *http.Request) {
 	var allBaskets []Basket
+
 	db.Find(&allBaskets)
 
 	json.NewEncoder(w).Encode(&allBaskets)
@@ -116,16 +118,42 @@ func addProductToBasket(w http.ResponseWriter, r *http.Request) {
 	key := vars["id"]
 	var basket Basket
 	var product Product
-
-	reqBody, _ := ioutil.ReadAll(r.Body)
 	var productRequest ProductRequest
-	json.Unmarshal(reqBody, &productRequest)
+	var expandedBasket []string
+	var quantityCasted int
+	var errCasting error
 
-	db.First(&basket, key)
-	fmt.Println(productRequest)
+	//Finds the product in the database by code
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(reqBody, &productRequest)
 	db.Where("Code = ?", productRequest.Code).First(&product)
 
-	json.NewEncoder(w).Encode(&product)
+	//Finds the basket
+	db.First(&basket, key)
+
+	//Adds the product to the basket
+	if basket.ProductsInBasket != "" {
+		expandedBasket = strings.Split(basket.ProductsInBasket, ",")
+	}
+
+	quantityCasted, errCasting = strconv.Atoi(productRequest.Quantity)
+	if errCasting != nil {
+		quantityCasted = 0
+		log.Panic(errCasting)
+		log.Panic("Cannot convert quantity of products added. Set to 0")
+	}
+
+	if product.Code != "" {
+		for i := 1; i <= quantityCasted; i++ {
+			expandedBasket = append(expandedBasket, product.Code)
+		}
+		basket.ProductsInBasket = strings.Join(expandedBasket[:], ",")
+		db.Save(&basket)
+	} else {
+		//TODO:handle error
+	}
+
+	//	json.NewEncoder(w).Encode(&product)
 	json.NewEncoder(w).Encode(&basket)
 }
 
@@ -140,13 +168,10 @@ func deleteBasket(w http.ResponseWriter, r *http.Request) {
 	var basket Basket
 
 	db.First(&basket, params["id"])
+	json.NewEncoder(w).Encode(&basket)
+
 	db.Delete(&basket)
 
-	var baskets []Basket
-
-	db.Find(&baskets)
-
-	json.NewEncoder(w).Encode(&baskets)
 }
 
 /////
