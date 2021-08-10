@@ -74,6 +74,13 @@ func getAllProducts(w http.ResponseWriter, r *http.Request) {
 }
 
 func getProduct(w http.ResponseWriter, r *http.Request) { //Product {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	var product Product
+
+	db.First(&product, key)
+
+	json.NewEncoder(w).Encode(&product)
 
 }
 
@@ -164,11 +171,11 @@ func handleRequests() {
 	gorRouter.HandleFunc("/about", about)
 
 	gorRouter.HandleFunc("/Products", getAllProducts).Methods("GET")
-	gorRouter.HandleFunc("/Products/{id}", about).Methods("GET")
+	gorRouter.HandleFunc("/Products/{id}", getProduct).Methods("GET")
 
 	gorRouter.HandleFunc("/Baskets", newBasket).Methods("POST")
-	gorRouter.HandleFunc("/Baskets/{id}", addProductToBasket).Methods("POST")
-	gorRouter.HandleFunc("/Baskets/{id}", getTotalAmountInBasket)
+	gorRouter.HandleFunc("/Baskets/{id}/items", addProductToBasket).Methods("POST")
+	gorRouter.HandleFunc("/Baskets/{id}", getTotalAmountInBasket).Methods("GET")
 	gorRouter.HandleFunc("/Baskets/{id}", deleteBasket).Methods("DELETE")
 
 	handler := cors.Default().Handler(gorRouter)
