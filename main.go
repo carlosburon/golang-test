@@ -139,7 +139,6 @@ func addProductToBasket(w http.ResponseWriter, r *http.Request) {
 	quantityCasted, errCasting = strconv.Atoi(productRequest.Quantity)
 	if errCasting != nil {
 		quantityCasted = 0
-		log.Panic(errCasting)
 		log.Panic("Cannot convert quantity of products added. Set to 0")
 	}
 
@@ -150,7 +149,7 @@ func addProductToBasket(w http.ResponseWriter, r *http.Request) {
 		basket.ProductsInBasket = strings.Join(expandedBasket[:], ",")
 		db.Save(&basket)
 	} else {
-		//TODO:handle error
+		log.Panic("Invalid product code. Not adding anything to basket")
 	}
 
 	//	json.NewEncoder(w).Encode(&product)
