@@ -1,5 +1,4 @@
 ### Curl commands for testing the endpoints
----
 Make sure to edit the fields inside brackets []
 
 ---
