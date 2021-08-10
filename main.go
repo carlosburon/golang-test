@@ -86,60 +86,38 @@ func getProduct(w http.ResponseWriter, r *http.Request) { //Product {
 
 //Creates a new basket with no products and a unique identifier
 func newBasket(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	var product Product
 
+	db.First(&product, key)
+
+	json.NewEncoder(w).Encode(&product)
 }
 
 //Finds a basket by id and adds a product to it
 func addProductToBasket(w http.ResponseWriter, r *http.Request) {
-	/* 	vars := mux.Vars(r)
-	   	key := vars["id"]
-	   	i, err := strconv.Atoi(key)
-	   	reqBody, _ := ioutil.ReadAll(r.Body)
-	   	var newProduct Product
-
-	   	json.Unmarshal(reqBody, &newProduct)
-
-	   	if err == nil {
-	   		resultBasketId := searchBasket(i)
-
-	   		if resultBasketId != len(Baskets) {
-	   			Baskets[resultBasketId].ProductsInBasket = append(Baskets[resultBasketId].ProductsInBasket, newProduct)
-	   			json.NewEncoder(w).Encode(Baskets[resultBasketId])
-	   		} else {
-	   			//TODO: handle basket id not found error
-	   		}
-	   	} else {
-	   		//TODO: handle malformed basket id error
-	   	} */
 
 }
 
 //Calculates basket total by adding products and applying discounts
 func getTotalAmountInBasket(w http.ResponseWriter, r *http.Request) {
-	/*	vars := mux.Vars(r)
-		key := vars["id"]
-		i, err := strconv.Atoi(key)
 
-		if err == nil {
-			resultBasketId := searchBasket(i)
-
-			if resultBasketId != len(Baskets) {
-
-				Baskets[resultBasketId].ProductsInBasket = append(Baskets[resultBasketId].ProductsInBasket, newProduct)
-				json.NewEncoder(w).Encode(Baskets[resultBasketId])
-
-			} else {
-				//TODO: handle basket id not found error
-			}
-		} else {
-			//TODO: handle malformed basket id error
-		}
-	*/
 }
 
 //Finds a basket by id and deletes it
 func deleteBasket(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var basket Basket
 
+	db.First(&basket, params["id"])
+	db.Delete(&basket)
+
+	var baskets []Basket
+
+	db.Find(&baskets)
+
+	json.NewEncoder(w).Encode(&baskets)
 }
 
 /////
