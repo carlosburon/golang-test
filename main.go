@@ -164,6 +164,10 @@ func getTotalAmountInBasket(w http.ResponseWriter, r *http.Request) {
 	var expandedBasket []string
 	var total Total
 
+	//TODO: do not hardcode discounts
+	var penCounter int
+	var tshirtCounter int
+
 	//Finds the product in the database by code
 	//db.Where("Code = ?", productRequest.Code).First(&product)
 
@@ -176,7 +180,29 @@ func getTotalAmountInBasket(w http.ResponseWriter, r *http.Request) {
 		for index := range expandedBasket {
 			var product Product
 			db.Where("Code = ?", expandedBasket[index]).First(&product)
-			total.Total += product.Price
+
+			//TODO: do not hardcode discounts
+			if expandedBasket[index] == "PEN" {
+				penCounter++
+				if penCounter%2 == 0 {
+					total.Total += 0
+				} else {
+					total.Total += product.Price
+				}
+			} else if expandedBasket[index] == "TSHIRT" {
+				tshirtCounter++
+				if tshirtCounter == 3 {
+					total.Total -= product.Price * 0.25
+					total.Total -= product.Price * 0.25
+					total.Total += product.Price * 0.75
+				} else if tshirtCounter > 3 {
+					total.Total += product.Price * 0.75
+				} else {
+					total.Total += product.Price
+				}
+			} else {
+				total.Total += product.Price
+			}
 		}
 		total.Items = basket.ProductsInBasket
 	} else {
