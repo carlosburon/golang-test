@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -232,7 +233,16 @@ func deleteBasket(w http.ResponseWriter, r *http.Request) {
 
 func handleRequests() {
 	gorRouter := mux.NewRouter()
-	db, dberr = gorm.Open("postgres", "host=db port=26257 user=postgres dbname=postgres sslmode=disable password=postgres") //TODO: add password security
+
+	pgConnString := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGDATABASE"),
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+	)
+
+	db, dberr = gorm.Open("postgres", pgConnString) //TODO: add password security
 
 	if dberr != nil {
 		fmt.Println(dberr)
