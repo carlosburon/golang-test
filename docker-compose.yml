@@ -1,0 +1,42 @@
+version '3.8'
+
+services:
+  docker-lana-sre-challenge
+    depends_on:
+      - roach
+    build:
+      context: .
+    container_name: lana-sre-rest
+    hostname: lana-sre-rest
+    networks:
+      - mynet
+    ports:
+      - 3000:3000
+    environment:
+      - PGUSER=${PGUSER:-postgres}
+      - PGPASSWORD=${PGPASSWORD:?database password not set}
+      - PGHOST=${PGHOST:-db}
+      - PGPORT=${PGPORT:-26257}
+      - PGDATABASE=${PGDATABASE-postgres}
+    deploy:
+      restart_policy:
+        condition: on-failure
+  roach:
+    image: cockroachdb/cockroach:latest
+    container_name: roach
+    hostname: db
+    networks:
+      - mynet
+    ports:
+      - 26257:26257
+      - 3000:3000
+    volumes:
+      - roach:/cockroach/cockroach-database
+    command: start-single-node --insecure
+
+volumes:
+  roach:
+
+networks:
+  mynet:
+    driver:bridge
