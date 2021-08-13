@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -96,11 +97,18 @@ func getProduct(w http.ResponseWriter, r *http.Request) { //Product {
 
 //Creates a new basket with no products and a unique identifier
 func newBasket(w http.ResponseWriter, r *http.Request) {
-
+	var result string
 	newBasket := Basket{gorm.Model{}, ""}
-	db.Create(&newBasket)
+	dbc := db.Create(&newBasket)
 
-	json.NewEncoder(w).Encode(newBasket)
+	if dbc.Error != nil {
+		log.Panic("Error creating basket!")
+		result = "Error"
+	} else {
+		result = "Basket created successfully"
+	}
+
+	json.NewEncoder(w).Encode(result)
 
 }
 
@@ -242,7 +250,23 @@ func handleRequests() {
 		os.Getenv("PGPASSWORD"),
 	)
 
-	db, dberr = gorm.Open("postgres", pgConnString) //TODO: add password security
+	//Tries to reconnect to the database. Should implement it with os.Getenv("PGRETRIES") casted to int
+
+	retries := 10
+
+	for retries > 0 {
+
+		db, dberr = gorm.Open("postgres", pgConnString)
+
+		if dberr == nil {
+			log.Println("Succesfully connected to database")
+			break
+		}
+
+		log.Printf("Failed to connect to database. %d tries left\n", retries)
+		time.Sleep(5 * time.Second)
+		retries--
+	}
 
 	if dberr != nil {
 		fmt.Println(dberr)
@@ -297,10 +321,10 @@ func handleRequests() {
 
 func main() {
 
-	fmt.Println("Server Starting...")
+	log.Println("Server Starting...")
 
-	fmt.Println("Loading Products...")
+	log.Println("Loading Products...")
 
-	fmt.Println("Starting Router...")
+	log.Println("Starting Router...")
 	handleRequests()
 }
