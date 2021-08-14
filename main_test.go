@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"testing"
 
@@ -17,22 +19,47 @@ import (
 // Requirement 1: Creates a new basket by calling POST on /Baskets
 func TestCreateNewBasket(t *testing.T) {
 
+	var db *sql.DB
+	var err error
 	pool, err := dockertest.NewPool("")
-	require.NoError(t, err, "could not connect to Docker")
+	if err != nil {
+		log.Fatalf("Could not connect to docker: %s", err)
+	}
 
-	resource, err := pool.Run("lana-sre-rest", "latest", []string{})
+	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
+		Hostname:   "db",
+		Name:       "db",
+		Repository: "cockroachdb/cockroach",
+		Tag:        "latest",
+		Cmd:        []string{"start-single-node", "--insecure"}})
+	if err != nil {
+		log.Fatalf("Could not start resource: %s", err)
+	}
+
+	if err = pool.Retry(func() error {
+		var err error
+		db, err = sql.Open("postgres", fmt.Sprintf("postgresql://root@localhost:%s/events?sslmode=disable", resource.GetPort("26257/tcp")))
+		if err != nil {
+			return err
+		}
+		return db.Ping()
+	}); err != nil {
+		log.Fatalf("Could not connect to cockroach container: %s", err)
+	}
+
+	resource2, err := pool.RunWithOptions(&dockertest.RunOptions{
+		Repository: "lana-sre-rest",
+		Tag:        "latest",
+		Env:        []string{"PGHOST=db", "PGPORT=26257", "PGDATABASE=postgres", "PGUSER=root", "PGPASSWORD=secret"},
+		Links:      []string{"db:db"}})
 	require.NoError(t, err, "could not start container")
-
-	t.Cleanup(func() {
-		require.NoError(t, pool.Purge(resource), "failed to remove container")
-	})
 
 	var resp *http.Response
 
 	postBody, _ := json.Marshal("")
 
 	err = pool.Retry(func() error {
-		resp, err = http.Post(fmt.Sprint("http://localhost:", resource.GetPort("3000/tcp"), "/Baskets"), "application/json", bytes.NewBuffer(postBody))
+		resp, err = http.Post(fmt.Sprint("http://localhost:", resource2.GetPort("3000/tcp"), "/Baskets"), "application/json", bytes.NewBuffer(postBody))
 		if err != nil {
 			t.Log(err)
 			t.Log("container not ready, waiting...")
@@ -49,4 +76,15 @@ func TestCreateNewBasket(t *testing.T) {
 	require.NoError(t, err, "failed to read HTTP body")
 
 	require.Contains(t, string(body), "Basket created successfully")
+
+	// When you're done, kill and remove the container
+	if err = pool.Purge(resource); err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+
+	// When you're done, kill and remove the container
+	if err = pool.Purge(resource2); err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+
 }
