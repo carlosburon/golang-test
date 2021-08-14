@@ -19,6 +19,7 @@ import (
 // Requirement 1: Creates a new basket by calling POST on /Baskets
 func TestCreateNewBasket(t *testing.T) {
 
+	//Initialize docker
 	var db *sql.DB
 	var err error
 	pool, err := dockertest.NewPool("")
@@ -26,6 +27,7 @@ func TestCreateNewBasket(t *testing.T) {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
+	//Run CockroachDB container
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Hostname:   "db",
 		Name:       "db",
@@ -47,6 +49,7 @@ func TestCreateNewBasket(t *testing.T) {
 		log.Fatalf("Could not connect to cockroach container: %s", err)
 	}
 
+	//Run our test app container
 	resource2, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "lana-sre-rest",
 		Tag:        "latest",
@@ -54,8 +57,8 @@ func TestCreateNewBasket(t *testing.T) {
 		Links:      []string{"db:db"}})
 	require.NoError(t, err, "could not start container")
 
+	//Create a new basket
 	var resp *http.Response
-
 	postBody, _ := json.Marshal("")
 
 	err = pool.Retry(func() error {
