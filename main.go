@@ -249,7 +249,6 @@ func handleRequests() {
 		os.Getenv("PGUSER"),
 		os.Getenv("PGPASSWORD"),
 	)
-
 	//Tries to reconnect to the database. Should implement it with os.Getenv("PGRETRIES") casted to int
 
 	retries := 10
@@ -262,7 +261,7 @@ func handleRequests() {
 			log.Println("Succesfully connected to database")
 			break
 		}
-
+		log.Println(dberr)
 		log.Printf("Failed to connect to database. %d tries left\n", retries)
 		time.Sleep(5 * time.Second)
 		retries--
