@@ -41,7 +41,7 @@ Some files from the source to highlight
 
 - **📃 curl.md** *Curl examples for testing the endpoints*
 
-- **📃 .env** *Recommended for setting up PGPASSWORD for future releases where the DB connection is securized*
+- **📃 .env** *Recommended for setting up PGPASSWORD for future releases where the DB connection is securized. Created locally, not needed for this test*
 
 ## Usage
 
