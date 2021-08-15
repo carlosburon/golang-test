@@ -23,7 +23,7 @@ This repository implements a simple checkout HTTP API that allows the following 
     - *Ports exposed:*
         - App http: 3000
         - Postgres: 26257
-        - Postgres http: 3000
+        - Postgres http: 8080
 
 ## Files
 
