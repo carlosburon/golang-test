@@ -46,9 +46,11 @@ Some files from the source to highlight
 ## Usage
 
 If you want to test building the app in local, run the following docker compose command
+    
     - docker-compose up --build
 
 A simple unit test can be run using
+    
     - go test -v ./..
 
 You can test the endpoints manually with the examples provided in the **📃 curl.md** file provided in this repository
