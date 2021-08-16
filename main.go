@@ -15,6 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 )
 
@@ -296,14 +297,12 @@ func handleRequests() {
 	gorRouter.HandleFunc("/Baskets/{id}", getTotalAmountInBasket).Methods("GET")
 	gorRouter.HandleFunc("/Baskets/{id}", deleteBasket).Methods("DELETE")
 
+	//Implement prometheus monitoring
+	gorRouter.Handle("/metrics", promhttp.Handler())
+
 	handler := cors.Default().Handler(gorRouter)
 
 	log.Fatal(http.ListenAndServe(":3000", handler))
-}
-
-//Monitoring
-func initMonitoring() {
-
 }
 
 ////
