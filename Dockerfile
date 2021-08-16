@@ -12,6 +12,7 @@ COPY *.go ./
 RUN go build -o /lana-sre-challenge
 
 EXPOSE 3000
+EXPOSE 2112
 
 CMD [ "/lana-sre-challenge"]
 

@@ -12,6 +12,7 @@ services:
       - mynet
     ports:
       - 3000:3000
+      - 2112:2112
     environment:
       - PGUSER=${PGUSER:-root}
       - PGPASSWORD=${PGPASSWORD:?database password not set}
