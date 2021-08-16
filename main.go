@@ -15,6 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 )
 
@@ -296,23 +297,13 @@ func handleRequests() {
 	gorRouter.HandleFunc("/Baskets/{id}", getTotalAmountInBasket).Methods("GET")
 	gorRouter.HandleFunc("/Baskets/{id}", deleteBasket).Methods("DELETE")
 
+	//Implement prometheus monitoring
+	gorRouter.Handle("/metrics", promhttp.Handler())
+
 	handler := cors.Default().Handler(gorRouter)
 
 	log.Fatal(http.ListenAndServe(":3000", handler))
 }
-
-//Applies discounts
-/*func calculateTotal(id int) Total {
-
-	var total Total
-
-	for _, n := range Baskets[id].ProductsInBasket {
-		total.Items = append(total.Items, n.Name)
-		total.Items = append(total.Items, n.Name)
-	}
-
-	return total
-}*/
 
 ////
 //Main
