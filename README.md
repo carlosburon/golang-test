@@ -77,3 +77,9 @@ Remove the basket
 ## Pipeline usage
 
 Additionally, pushing to master will triget the Github Actions CI pipeline and build the app and test it
+
+## Monitoring
+
+Application can be monitored via Prometheus on endpoint 3000/metrics. Example:
+
+    - curl http://localhost:3000/metrics
