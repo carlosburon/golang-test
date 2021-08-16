@@ -55,3 +55,25 @@ A simple unit test can be run using
 
 You can test the endpoints manually with the examples provided in the **📃 curl.md** file provided in this repository
 
+Some curl examples:
+
+Create a new checkout basket
+
+    - curl -d '' http://localhost:3000/Basket
+
+
+Add a product to a basket
+
+    - curl -H "Content-Type: application/json" -d '{"Code":"[PEN|MUG|TSHIRT]","Quantity":"[0-N]"}' http://localhost:3000/Baskets/[id]/items
+
+Get the total amount in a basket
+
+    - curl http://localhost:3000/Baskets/[id]
+
+Remove the basket
+
+    - curl -X DELETE http://localhost:3000/Baskets/[id]
+
+## Pipeline usage
+
+Additionally, pushing to master will triget the Github Actions CI pipeline and build the app and test it
