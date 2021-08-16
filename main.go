@@ -301,19 +301,6 @@ func handleRequests() {
 	log.Fatal(http.ListenAndServe(":3000", handler))
 }
 
-//Applies discounts
-/*func calculateTotal(id int) Total {
-
-	var total Total
-
-	for _, n := range Baskets[id].ProductsInBasket {
-		total.Items = append(total.Items, n.Name)
-		total.Items = append(total.Items, n.Name)
-	}
-
-	return total
-}*/
-
 ////
 //Main
 ////
