@@ -1,13 +1,13 @@
 version: "3.7"
 
 services:
-  docker-lana-sre-challenge:
+  docker-golang-api-test:
     depends_on:
       - roach-database
     build:
       context: .
-    container_name: lana-sre-rest
-    hostname: lana-sre-rest
+    container_name: golang-api-test
+    hostname: golang-api-test
     networks:
       - mynet
     ports:

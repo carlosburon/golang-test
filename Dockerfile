@@ -9,10 +9,10 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /lana-sre-challenge
+RUN go build -o /golang-api-test
 
 EXPOSE 3000
 
-CMD [ "/lana-sre-challenge"]
+CMD [ "/golang-api-test"]
 
 
