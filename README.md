@@ -1,4 +1,4 @@
-# Lana SRE Challenge
+# Golang REST API test
 
 ## Description
 
