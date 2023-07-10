@@ -53,9 +53,9 @@ var dberr error
 
 var (
 	Products = []Product{
-		{Code: "PEN", Name: "Lana Pen", Price: 5.0},
-		{Code: "TSHIRT", Name: "Lana T-Shirt", Price: 20.0},
-		{Code: "MUG", Name: "Lana Coffee Mug", Price: 7.5},
+		{Code: "PEN", Name: "Pen", Price: 5.0},
+		{Code: "TSHIRT", Name: "T-Shirt", Price: 20.0},
+		{Code: "MUG", Name: "Coffee Mug", Price: 7.5},
 	}
 )
 
@@ -64,11 +64,11 @@ var (
 /////
 
 func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>Lana Merchandising (Homepage Endpoint)</h1>")
+	fmt.Fprintf(w, "<h1>Merchandising (Homepage Endpoint)</h1>")
 }
 
 func about(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>SRE-Challenge Lana attempt: Carlos Buron</h1>")
+	fmt.Fprintf(w, "<h1>Golang API test: Carlos Buron</h1>")
 }
 
 /////

@@ -1,4 +1,4 @@
-# Lana SRE Challenge pipeline test
+# golang-api-test pipeline test
 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: false
-          tags: ${{ github.event.repository.name }}:latest, ${{ github.repository }}:latest, lana-sre-rest:latest
+          tags: ${{ github.event.repository.name }}:latest, ${{ github.repository }}:latest, golang-api-test:latest
         
       - name: Run functional tests
         run: go test -v ./...

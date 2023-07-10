@@ -51,7 +51,7 @@ func TestCreateNewBasket(t *testing.T) {
 
 	//Run our test app container
 	resource2, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "lana-sre-rest",
+		Repository: "golang-api-test",
 		Tag:        "latest",
 		Env:        []string{"PGHOST=db", "PGPORT=26257", "PGDATABASE=postgres", "PGUSER=root", "PGPASSWORD=secret"},
 		Links:      []string{"db:db"}})

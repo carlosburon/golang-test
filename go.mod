@@ -1,4 +1,4 @@
-module github.com/carlosburon/lana
+module github.com/carlosburon/golang-test
 
 go 1.16
 
